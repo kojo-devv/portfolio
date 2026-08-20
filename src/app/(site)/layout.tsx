@@ -9,5 +9,9 @@ export default function SiteLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <Layout>{children}</Layout>;
+  return (
+    <div className="site-theme flex min-h-full flex-col bg-background text-foreground">
+      <Layout>{children}</Layout>
+    </div>
+  );
 }

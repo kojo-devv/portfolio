@@ -18,6 +18,7 @@
   --color-surface: var(--surface);
   --font-sans: var(--font-inter);
   --font-serif: var(--font-source-serif);
+  --font-display: var(--font-instrument-serif);
 }
 
 html {
@@ -34,7 +35,158 @@ body {
   font-family: var(--font-serif), Georgia, "Times New Roman", serif;
 }
 
+.font-display {
+  font-family: var(--font-display), var(--font-serif), Georgia, serif;
+}
+
 ::selection {
   background-color: var(--accent);
   color: var(--foreground);
+}
+
+.site-theme {
+  --background: #050505;
+  --foreground: #f4f0e6;
+  --muted: #9b968c;
+  --border: rgba(244, 240, 230, 0.14);
+  --accent: #f4f0e6;
+  --surface: #0c0c0c;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+body:has(.site-theme) {
+  background: #050505;
+  color: #f4f0e6;
+  color-scheme: dark;
+}
+
+.site-theme ::selection {
+  background-color: var(--foreground);
+  color: var(--background);
+}
+
+.site-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--foreground);
+  border-radius: 999px;
+  padding: 0.85rem 1.35rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease,
+    opacity 0.35s ease;
+}
+
+.site-cta-primary:hover {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.site-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.8125rem;
+  letter-spacing: 0.01em;
+  color: var(--foreground);
+  transition: opacity 0.35s ease;
+}
+
+.site-cta-secondary:hover {
+  opacity: 0.62;
+}
+
+.site-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 1px;
+  transition: background-size 0.45s ease;
+}
+
+.group:hover .site-underline,
+.site-underline-hover:hover {
+  background-size: 100% 1px;
+}
+
+@keyframes site-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.site-enter {
+  animation: site-fade-up 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.site-enter-delay-1 {
+  animation-delay: 90ms;
+}
+
+.site-enter-delay-2 {
+  animation-delay: 170ms;
+}
+
+.site-enter-delay-3 {
+  animation-delay: 260ms;
+}
+
+.site-enter-delay-4 {
+  animation-delay: 340ms;
+}
+
+.site-enter-delay-5 {
+  animation-delay: 430ms;
+}
+
+@keyframes site-rise {
+  from {
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.reveal {
+  animation: site-rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.site-image-zoom {
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.group:hover .site-image-zoom {
+  transform: scale(1.045);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .site-enter,
+  .reveal,
+  .site-image-zoom {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .group:hover .site-image-zoom {
+    transform: none !important;
+  }
 }

@@ -1,3 +1,4 @@
+import { Reveal } from "@/components/motion/Reveal";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import type { PortfolioContent } from "@/types/content";
@@ -7,40 +8,84 @@ type AboutSectionProps = {
 };
 
 export function AboutSection({ about }: AboutSectionProps) {
+  const [leadParagraph, ...supportingParagraphs] = about.bodyParagraphs;
+  const strengthLabels = about.strengths
+    .map((strength) => strength.title)
+    .filter(Boolean);
+
   return (
-    <Section id="about">
+    <Section id="about" className="border-t border-border">
       <Container>
-        <div className="max-w-3xl">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
-            {about.sectionLabel}
-          </p>
+        <Reveal>
+          {about.sectionLabel ? (
+            <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-muted">
+              {about.sectionLabel}
+            </p>
+          ) : null}
 
-          <h2 className="mt-5 font-serif text-3xl tracking-[-0.02em] text-foreground sm:text-4xl">
-            {about.heading}
-          </h2>
+          {about.heading ? (
+            <h2 className="mt-5 max-w-[14ch] font-display text-[clamp(2.6rem,7vw,6.25rem)] leading-[0.9] tracking-[-0.045em] text-foreground">
+              {about.heading}
+            </h2>
+          ) : null}
+        </Reveal>
 
-          <div className="mt-7 space-y-5 text-base leading-relaxed text-muted sm:mt-8 sm:text-[1.0625rem] sm:leading-relaxed">
-            {about.bodyParagraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
+        {strengthLabels.length > 0 ? (
+          <Reveal>
+            <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-2 bg-foreground px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.16em] text-background sm:mt-10 sm:px-5">
+              {strengthLabels.map((label) => (
+                <span key={label}>{label}</span>
+              ))}
+            </div>
+          </Reveal>
+        ) : (
+          <div className="mt-8 h-px w-full bg-border sm:mt-10" />
+        )}
+
+        {leadParagraph ? (
+          <Reveal>
+            <p className="mt-10 max-w-2xl text-[1.35rem] leading-[1.3] tracking-[-0.03em] text-foreground md:ml-[min(18vw,12rem)] md:text-3xl md:leading-[1.2]">
+              {leadParagraph}
+            </p>
+          </Reveal>
+        ) : null}
+
+        {supportingParagraphs.length > 0 ? (
+          <Reveal>
+            <div className="mt-8 max-w-xl space-y-5 text-[15px] leading-relaxed text-muted md:ml-[min(18vw,12rem)]">
+              {supportingParagraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </Reveal>
+        ) : null}
+
+        {about.strengths.length > 0 ? (
+          <div className="mt-16 md:mt-24 md:ml-[min(12vw,8rem)]">
+            {about.strengths.map((strength, index) => (
+              <Reveal key={strength.id} delayMs={index * 50}>
+                <article className="group relative grid gap-3 border-t border-border py-8 sm:grid-cols-[4rem_minmax(10rem,18rem)_minmax(0,1fr)] sm:items-start sm:gap-8 sm:py-10">
+                  <div className="relative flex items-center">
+                    <span className="absolute -left-5 h-1.5 w-1.5 rounded-full bg-foreground opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-muted">
+                      {String(index + 1).padStart(2, "0")}
+                    </p>
+                  </div>
+                  {strength.title ? (
+                    <h3 className="text-lg tracking-[-0.03em] text-foreground sm:text-xl">
+                      {strength.title}
+                    </h3>
+                  ) : null}
+                  {strength.description ? (
+                    <p className="max-w-xl text-[15px] leading-relaxed text-muted">
+                      {strength.description}
+                    </p>
+                  ) : null}
+                </article>
+              </Reveal>
             ))}
           </div>
-        </div>
-
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 sm:gap-6 lg:mt-16 lg:gap-8">
-          {about.strengths.map((strength) => (
-            <article
-              key={strength.id}
-              className="rounded-2xl border border-border bg-surface p-6 shadow-[0_16px_40px_-28px_rgba(17,17,17,0.1)] transition-transform duration-300 ease-out motion-safe:hover:-translate-y-0.5 sm:p-8"
-            >
-              <h3 className="text-lg font-medium tracking-[-0.02em] text-foreground">
-                {strength.title}
-              </h3>
-              <p className="mt-3 text-[15px] leading-relaxed text-muted sm:text-base sm:leading-relaxed">
-                {strength.description}
-              </p>
-            </article>
-          ))}
-        </div>
+        ) : null}
       </Container>
     </Section>
   );

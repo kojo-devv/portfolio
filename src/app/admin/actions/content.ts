@@ -2,6 +2,8 @@
 
 import { requireAdminClient } from "@/lib/admin";
 import { revalidatePublicContent } from "@/lib/revalidate";
+import { removeStorageFiles } from "@/lib/storage";
+import { getHeroSaveErrorMessage } from "@/lib/storage/errors";
 import {
   normalizeEmailAddress,
   normalizeExternalUrl,
@@ -12,10 +14,28 @@ function parseFeaturedProjectId(formData: FormData): string | null {
   return value || null;
 }
 
-export async function saveHeroContent(formData: FormData): Promise<void> {
+type SaveHeroMedia = {
+  imagePath?: string | null;
+  removedImagePath?: string | null;
+};
+
+export async function saveHeroContent(
+  formData: FormData,
+  media?: SaveHeroMedia,
+): Promise<void> {
   const { supabase } = await requireAdminClient();
 
   const featuredProjectId = parseFeaturedProjectId(formData);
+  const heroImagePath =
+    media?.imagePath !== undefined
+      ? media.imagePath?.trim() || null
+      : String(formData.get("hero_image_path") ?? "").trim() || null;
+
+  const { data: existingHero } = await supabase
+    .from("hero_content")
+    .select("hero_image_path")
+    .eq("id", 1)
+    .maybeSingle();
 
   const payload = {
     id: 1,
@@ -29,6 +49,7 @@ export async function saveHeroContent(formData: FormData): Promise<void> {
     ).trim(),
     secondary_button_href: String(formData.get("secondary_button_href") ?? "").trim(),
     featured_project_id: featuredProjectId,
+    hero_image_path: heroImagePath,
   };
 
   const { error } = await supabase
@@ -36,7 +57,31 @@ export async function saveHeroContent(formData: FormData): Promise<void> {
     .upsert(payload, { onConflict: "id" });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(getHeroSaveErrorMessage(error));
+  }
+
+  const pathsToDelete = new Set<string>();
+
+  if (media?.removedImagePath?.trim()) {
+    pathsToDelete.add(media.removedImagePath.trim());
+  }
+
+  const previousImagePath = existingHero?.hero_image_path?.trim();
+
+  if (
+    previousImagePath &&
+    previousImagePath !== heroImagePath &&
+    !pathsToDelete.has(previousImagePath)
+  ) {
+    pathsToDelete.add(previousImagePath);
+  }
+
+  if (pathsToDelete.size > 0) {
+    try {
+      await removeStorageFiles(supabase, "site-assets", [...pathsToDelete]);
+    } catch {
+      // The new image is already saved. Cleaning up the previous object is best-effort.
+    }
   }
 
   revalidatePublicContent();

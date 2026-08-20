@@ -1,11 +1,17 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { getStorageUploadErrorMessage } from "@/lib/storage/errors";
+
+type UploadOptions = {
+  contentType?: string;
+};
 
 export async function uploadFileClient(
   bucket: "project-images" | "site-assets",
   folder: string,
   file: File,
+  options?: UploadOptions,
 ): Promise<string> {
   const supabase = createClient();
   const extension = file.name.split(".").pop()?.toLowerCase() ?? "bin";
@@ -13,10 +19,12 @@ export async function uploadFileClient(
 
   const { error } = await supabase.storage.from(bucket).upload(path, file, {
     upsert: false,
+    contentType: options?.contentType ?? file.type,
+    cacheControl: "3600",
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(getStorageUploadErrorMessage(error));
   }
 
   return path;

@@ -8,11 +8,13 @@ Create a project at [supabase.com](https://supabase.com).
 
 ## 2. Run the database migration
 
-Open the Supabase SQL editor and run:
+Open the Supabase SQL editor and run the files in `supabase/migrations/` in order, starting with `001_initial_schema.sql`. If the project already exists, run any newer files that have not been applied yet.
 
-`supabase/migrations/001_initial_schema.sql`
+To enable the homepage hero image, existing projects must run:
 
-This creates the content tables, row-level security policies, storage buckets, and seed data.
+`supabase/migrations/004_add_hero_image_path.sql`
+
+This adds `hero_content.hero_image_path` and sets a 50 MB limit on the existing `site-assets` bucket. It does not change project images.
 
 ## 3. Configure environment variables
 
@@ -68,7 +70,7 @@ Admin dashboard: `/admin`
 
 Use the admin dashboard to edit:
 
-- Hero copy, buttons, and featured project
+- Hero copy, buttons, homepage hero image, and featured project
 - Featured projects, images, order, and publish status
 - About section and strength cards
 - Contact links

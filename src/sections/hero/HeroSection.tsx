@@ -1,67 +1,83 @@
+import Image from "next/image";
+
+import { SiteCta } from "@/components/site/SiteCta";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
-import { cn } from "@/lib/cn";
+import { resolveWorkPageHref } from "@/lib/urls";
 import type { PortfolioContent } from "@/types/content";
-
-const buttonBaseClassName =
-  "inline-flex items-center justify-center rounded-md px-6 py-3.5 text-sm font-medium tracking-[-0.01em] transition-colors duration-300 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground";
-
-const buttonVariants = {
-  primary:
-    "border border-foreground bg-foreground text-background hover:bg-neutral-800",
-  secondary:
-    "border border-border bg-transparent text-foreground hover:border-neutral-400 hover:bg-neutral-100/60",
-} as const;
-
-function HeroLink({
-  href,
-  variant,
-  children,
-}: {
-  href: string;
-  variant: keyof typeof buttonVariants;
-  children: React.ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      className={cn(buttonBaseClassName, buttonVariants[variant])}
-    >
-      {children}
-    </a>
-  );
-}
 
 type HeroSectionProps = {
   hero: PortfolioContent["hero"];
 };
 
 export function HeroSection({ hero }: HeroSectionProps) {
-  return (
-    <Section id="hero" className="pt-14 md:pt-20 lg:pt-24">
-      <Container>
-        <div className="max-w-xl">
-          <p className="mb-5 text-xs font-medium uppercase tracking-[0.18em] text-muted">
-            {hero.label}
-          </p>
+  const hasPrimary = Boolean(hero.primaryButtonLabel && hero.primaryButtonHref);
+  const hasSecondary = Boolean(
+    hero.secondaryButtonLabel && hero.secondaryButtonHref,
+  );
+  const primaryHref = resolveWorkPageHref(hero.primaryButtonHref);
+  const secondaryHref = hero.secondaryButtonHref;
 
-          <h1 className="font-serif text-[2.125rem] font-normal leading-[1.12] tracking-[-0.025em] text-foreground sm:text-5xl lg:text-[3.375rem] lg:leading-[1.08]">
+  return (
+    <Section
+      id="hero"
+      className="flex flex-col justify-between overflow-hidden pt-8 md:pt-10 lg:min-h-[calc(100svh-4.5rem)] lg:pb-10"
+    >
+      <Container className="flex flex-1 flex-col">
+        <div className="grid flex-1 items-start gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(15rem,22rem)] lg:gap-16 xl:grid-cols-[minmax(0,1.35fr)_minmax(16rem,26rem)]">
+          <div className="flex min-w-0 flex-col">
+            {hero.label ? (
+              <p className="site-enter text-[11px] font-medium uppercase tracking-[0.2em] text-muted">
+                {hero.label}
+              </p>
+            ) : null}
+
+            {hero.supportingParagraph ? (
+              <p className="site-enter site-enter-delay-1 mt-6 max-w-xl text-[1.05rem] leading-[1.55] tracking-[-0.02em] text-foreground sm:text-xl sm:leading-[1.45] lg:mt-7">
+                {hero.supportingParagraph}
+              </p>
+            ) : null}
+
+            {hasPrimary || hasSecondary ? (
+              <div className="site-enter site-enter-delay-2 mt-8 flex flex-wrap items-center gap-5 md:mt-10">
+                {hasPrimary ? (
+                  <SiteCta href={primaryHref}>
+                    {hero.primaryButtonLabel}
+                  </SiteCta>
+                ) : null}
+                {hasSecondary ? (
+                  <SiteCta href={secondaryHref} variant="secondary">
+                    {hero.secondaryButtonLabel}
+                    <span aria-hidden="true">→</span>
+                  </SiteCta>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+
+          {hero.imageUrl ? (
+            <div className="site-enter site-enter-delay-3 relative w-full max-w-md lg:max-w-none lg:justify-self-end">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-md lg:aspect-auto lg:h-[min(52vh,28rem)]">
+                <div className="relative h-full min-h-full w-full overflow-hidden bg-surface">
+                  <Image
+                    src={hero.imageUrl}
+                    alt="Homepage portrait"
+                    fill
+                    priority
+                    className="object-cover object-top"
+                    sizes="(max-width: 1024px) 90vw, 420px"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        {hero.headline ? (
+          <h1 className="site-enter site-enter-delay-4 mt-14 max-w-[16ch] break-words font-display text-[clamp(2.6rem,7.2vw,6.75rem)] leading-[0.92] tracking-[-0.045em] text-foreground md:mt-16 lg:mt-auto lg:pt-16">
             {hero.headline}
           </h1>
-
-          <p className="mt-7 max-w-[34rem] text-base leading-[1.75] text-muted md:mt-8 md:text-[1.0625rem]">
-            {hero.supportingParagraph}
-          </p>
-
-          <div className="mt-10 flex flex-wrap items-center gap-3 md:mt-12">
-            <HeroLink href={hero.primaryButtonHref} variant="primary">
-              {hero.primaryButtonLabel}
-            </HeroLink>
-            <HeroLink href={hero.secondaryButtonHref} variant="secondary">
-              {hero.secondaryButtonLabel}
-            </HeroLink>
-          </div>
-        </div>
+        ) : null}
       </Container>
     </Section>
   );

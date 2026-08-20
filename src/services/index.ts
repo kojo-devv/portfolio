@@ -1,1 +1,1 @@
-export { getPortfolioContent, getProjectBySlug } from "./content";
+export { getHomepageContent, getPortfolioContent, getProjectBySlug, getSiteChrome } from "./content";

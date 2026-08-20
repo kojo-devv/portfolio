@@ -33,6 +33,7 @@ create table if not exists public.hero_content (
   secondary_button_label text not null,
   secondary_button_href text not null,
   featured_project_id uuid references public.projects(id) on delete set null,
+  hero_image_path text,
   updated_at timestamptz not null default now()
 );
 
@@ -193,8 +194,8 @@ insert into storage.buckets (id, name, public)
 values ('project-images', 'project-images', true)
 on conflict (id) do nothing;
 
-insert into storage.buckets (id, name, public)
-values ('site-assets', 'site-assets', true)
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('site-assets', 'site-assets', true, 52428800)
 on conflict (id) do nothing;
 
 -- Storage policies

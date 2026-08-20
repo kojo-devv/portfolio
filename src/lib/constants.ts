@@ -3,7 +3,7 @@ import type { NavLink } from "@/types";
 export const SITE_NAME = "David Dapaah";
 
 export const NAV_LINKS: NavLink[] = [
-  { label: "Projects", href: "/projects" },
+  { label: "Work", href: "/work" },
   { label: "About", href: "/#about" },
   {
     label: "GitHub",

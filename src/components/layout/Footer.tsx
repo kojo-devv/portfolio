@@ -2,14 +2,14 @@ import Link from "next/link";
 
 import { Container } from "@/components/ui/Container";
 import { toMailtoLink } from "@/lib/urls";
-import { getPortfolioContent } from "@/services/content";
+import { getSiteChrome } from "@/services/content";
 
 export async function Footer() {
-  const content = await getPortfolioContent();
+  const content = await getSiteChrome();
 
   const footerLinks = [
-    { label: "LinkedIn", href: content.socialLinks.linkedin, external: true },
     { label: "GitHub", href: content.socialLinks.github, external: true },
+    { label: "LinkedIn", href: content.socialLinks.linkedin, external: true },
     {
       label: "Email",
       href: toMailtoLink(content.contact.email),
@@ -17,35 +17,36 @@ export async function Footer() {
     },
   ] as const;
 
+  const visibleLinks = footerLinks.filter((link) => Boolean(link.href));
+
   return (
-    <footer className="border-t border-border bg-background">
-      <Container className="max-w-7xl">
-        <div className="flex flex-col items-center gap-6 py-12 text-center md:flex-row md:items-center md:justify-between md:gap-8 md:py-14 md:text-left">
-          <Link
-            href="/"
-            className="text-[17px] font-medium tracking-[-0.02em] text-foreground transition-opacity duration-300 hover:opacity-65 md:flex-1"
-          >
-            {content.siteName}
-          </Link>
+    <footer className="border-t border-border">
+      <Container>
+        <div className="flex flex-col gap-8 py-10 md:flex-row md:items-end md:justify-between md:py-12">
+          <div className="space-y-3">
+            <Link
+              href="/"
+              className="text-sm tracking-[-0.02em] text-foreground transition-opacity duration-300 hover:opacity-60"
+            >
+              {content.siteName}
+            </Link>
+            {content.copyrightText ? (
+              <p className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                {content.copyrightText}
+              </p>
+            ) : null}
+          </div>
 
-          <p className="text-sm text-muted md:flex-1 md:text-center">
-            {content.copyrightText}
-          </p>
-
-          <nav
-            aria-label="Footer links"
-            className="flex items-center justify-center gap-6 md:flex-1 md:justify-end md:gap-8"
-          >
-            {footerLinks
-              .filter((link) => Boolean(link.href))
-              .map((link) =>
+          {visibleLinks.length > 0 ? (
+            <nav aria-label="Footer links" className="flex flex-wrap gap-x-6 gap-y-2">
+              {visibleLinks.map((link) =>
                 link.external ? (
                   <a
                     key={link.label}
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm tracking-[-0.01em] text-muted transition-[color,opacity] duration-300 hover:text-foreground"
+                    className="text-[11px] uppercase tracking-[0.16em] text-muted transition-colors duration-300 hover:text-foreground"
                   >
                     {link.label}
                   </a>
@@ -53,13 +54,14 @@ export async function Footer() {
                   <a
                     key={link.label}
                     href={link.href}
-                    className="text-sm tracking-[-0.01em] text-muted transition-[color,opacity] duration-300 hover:text-foreground"
+                    className="text-[11px] uppercase tracking-[0.16em] text-muted transition-colors duration-300 hover:text-foreground"
                   >
                     {link.label}
                   </a>
                 ),
               )}
-          </nav>
+            </nav>
+          ) : null}
         </div>
       </Container>
     </footer>

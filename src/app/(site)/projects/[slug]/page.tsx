@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ProjectImage } from "@/components/projects/ProjectImage";
+import { SiteCta } from "@/components/site/SiteCta";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
 import { getProjectBySlug } from "@/services/content";
@@ -38,38 +39,66 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound();
   }
 
+  const techLabel = project.techStack.filter(Boolean).join("  /  ");
+  const paragraphs = project.fullDescription
+    .split("\n\n")
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
   return (
-    <Section className="pt-14 md:pt-20">
-      <Container className="max-w-3xl">
+    <Section className="pt-10 md:pt-14">
+      <Container>
         <Link
-          href="/projects"
-          className="text-sm font-medium tracking-[-0.01em] text-muted transition-colors duration-300 hover:text-foreground"
+          href="/work"
+          className="text-[11px] uppercase tracking-[0.16em] text-muted transition-colors duration-300 hover:text-foreground"
         >
-          ← Back to projects
+          ← Work
         </Link>
 
-        <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_24px_64px_-32px_rgba(17,17,17,0.12)]">
+        {project.category ? (
+          <p className="mt-10 text-[11px] uppercase tracking-[0.18em] text-muted">
+            {project.category}
+          </p>
+        ) : null}
+
+        <h1 className="mt-4 max-w-[16ch] font-display text-[clamp(2.8rem,8vw,7rem)] leading-[0.9] tracking-[-0.045em] text-foreground">
+          {project.name}
+        </h1>
+
+        {techLabel ? (
+          <p className="mt-6 text-[11px] uppercase tracking-[0.14em] text-muted">
+            {techLabel}
+          </p>
+        ) : null}
+
+        <div className="group relative mt-10 h-[min(70vh,42rem)] min-h-[18rem] overflow-hidden rounded-md sm:mt-14">
           <ProjectImage
             name={project.name}
             imageUrl={project.featuredImageUrl}
-            className="lg:min-h-[28rem]"
-            sizes="(max-width: 768px) 100vw, 768px"
+            className="min-h-full"
+            sizes="(max-width: 768px) 100vw, 1400px"
             priority
           />
         </div>
 
-        <p className="mt-8 text-xs font-medium uppercase tracking-[0.16em] text-muted">
-          {project.category}
-        </p>
+        <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-20">
+          <div className="flex flex-col items-start gap-5">
+            {project.liveDemoUrl ? (
+              <SiteCta href={project.liveDemoUrl}>Live demo</SiteCta>
+            ) : null}
+            {project.githubUrl ? (
+              <SiteCta href={project.githubUrl} variant="secondary">
+                GitHub
+                <span aria-hidden="true">→</span>
+              </SiteCta>
+            ) : null}
+          </div>
 
-        <h1 className="mt-3 font-serif text-4xl tracking-[-0.02em] text-foreground sm:text-5xl">
-          {project.name}
-        </h1>
-
-        <div className="mt-6 space-y-5 text-base leading-relaxed text-muted sm:text-[1.0625rem] sm:leading-relaxed">
-          {project.fullDescription.split("\n\n").map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
+          <div className="space-y-5 text-[15px] leading-relaxed text-muted sm:text-base sm:leading-relaxed">
+            {paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
         </div>
       </Container>
     </Section>

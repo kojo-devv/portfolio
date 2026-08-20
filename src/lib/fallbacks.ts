@@ -17,6 +17,7 @@ export function getFallbackPortfolioContent(): PortfolioContent {
       primaryButtonHref: "",
       secondaryButtonLabel: "",
       secondaryButtonHref: "",
+      imageUrl: null,
       featuredProject: null,
     },
     projectsSection: {

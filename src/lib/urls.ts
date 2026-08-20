@@ -31,3 +31,28 @@ export function normalizeExternalUrl(url: string): string {
 
   return `https://${trimmed.replace(/^\/+/, "")}`;
 }
+
+const WORK_PAGE_HREF = "/work";
+
+const WORK_PAGE_ALIASES = new Set([
+  "/work",
+  "/projects",
+  "/#work",
+  "/#projects",
+  "#work",
+  "#projects",
+]);
+
+export function resolveWorkPageHref(href: string): string {
+  const trimmed = href.trim();
+
+  if (!trimmed) {
+    return WORK_PAGE_HREF;
+  }
+
+  if (WORK_PAGE_ALIASES.has(trimmed)) {
+    return WORK_PAGE_HREF;
+  }
+
+  return trimmed;
+}

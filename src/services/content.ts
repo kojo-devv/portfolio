@@ -5,7 +5,7 @@ import { cache } from "react";
 import { getFallbackPortfolioContent } from "@/lib/fallbacks";
 import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
-import { mapProjectRecord } from "@/lib/storage";
+import { getStoragePublicUrl, mapProjectRecord } from "@/lib/storage";
 import {
   normalizeEmailAddress,
   normalizeExternalUrl,
@@ -105,6 +105,7 @@ function buildPortfolioContent({
       primaryButtonHref: hero?.primary_button_href ?? "",
       secondaryButtonLabel: hero?.secondary_button_label ?? "",
       secondaryButtonHref: hero?.secondary_button_href ?? "",
+      imageUrl: getStoragePublicUrl("site-assets", hero?.hero_image_path),
       featuredProject,
     },
     projectsSection: {
@@ -136,6 +137,109 @@ function buildPortfolioContent({
       github,
     },
   };
+}
+
+async function loadSiteChrome() {
+  await connection();
+  noStore();
+
+  const fallback = getFallbackPortfolioContent();
+
+  if (!isSupabaseConfigured()) {
+    return {
+      siteName: fallback.siteName,
+      copyrightText: fallback.copyrightText,
+      contact: fallback.contact,
+      socialLinks: fallback.socialLinks,
+    };
+  }
+
+  const supabase = createPublicSupabaseClient();
+
+  if (!supabase) {
+    return {
+      siteName: fallback.siteName,
+      copyrightText: fallback.copyrightText,
+      contact: fallback.contact,
+      socialLinks: fallback.socialLinks,
+    };
+  }
+
+  const [contactResult, settingsResult] = await Promise.all([
+    supabase.from("contact_settings").select("*").eq("id", 1).maybeSingle(),
+    supabase.from("site_settings").select("*").eq("id", 1).maybeSingle(),
+  ]);
+
+  const content = buildPortfolioContent({
+    hero: null,
+    projects: [],
+    featuredProject: null,
+    about: null,
+    strengths: [],
+    projectsSection: null,
+    contact: contactResult.error
+      ? null
+      : (contactResult.data as ContactSettingsRecord | null),
+    settings: settingsResult.error
+      ? null
+      : (settingsResult.data as SiteSettingsRecord | null),
+  });
+
+  return {
+    siteName: content.siteName,
+    copyrightText: content.copyrightText,
+    contact: content.contact,
+    socialLinks: content.socialLinks,
+  };
+}
+
+async function loadHomepageContent(): Promise<PortfolioContent> {
+  await connection();
+  noStore();
+
+  if (!isSupabaseConfigured()) {
+    return getFallbackPortfolioContent();
+  }
+
+  const supabase = createPublicSupabaseClient();
+
+  if (!supabase) {
+    return getFallbackPortfolioContent();
+  }
+
+  const [
+    heroResult,
+    aboutResult,
+    strengthsResult,
+    contactResult,
+    settingsResult,
+  ] = await Promise.all([
+    supabase.from("hero_content").select("*").eq("id", 1).maybeSingle(),
+    supabase.from("about_content").select("*").eq("id", 1).maybeSingle(),
+    supabase
+      .from("about_strengths")
+      .select("*")
+      .order("display_order", { ascending: true }),
+    supabase.from("contact_settings").select("*").eq("id", 1).maybeSingle(),
+    supabase.from("site_settings").select("*").eq("id", 1).maybeSingle(),
+  ]);
+
+  return buildPortfolioContent({
+    hero: heroResult.error ? null : (heroResult.data as HeroContentRecord | null),
+    projects: [],
+    featuredProject: null,
+    about: aboutResult.error ? null : (aboutResult.data as AboutContentRecord | null),
+    strengths: strengthsResult.error
+      ? []
+      : ((strengthsResult.data ?? []) as AboutStrengthRecord[]),
+    projectsSection: null,
+    contact: contactResult.error
+      ? null
+      : (contactResult.data as ContactSettingsRecord | null),
+    settings: settingsResult.error
+      ? null
+      : (settingsResult.data as SiteSettingsRecord | null),
+  });
 }
 
 async function loadPortfolioContent(): Promise<PortfolioContent> {
@@ -239,6 +343,8 @@ async function loadProjectBySlug(slug: string): Promise<PublicProject | null> {
   return mapProjectRecord(data as ProjectRecord);
 }
 
+export const getSiteChrome = cache(loadSiteChrome);
+export const getHomepageContent = cache(loadHomepageContent);
 export const getPortfolioContent = cache(loadPortfolioContent);
 export const getProjectBySlug = cache(loadProjectBySlug);
 

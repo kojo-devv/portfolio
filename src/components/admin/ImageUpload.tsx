@@ -10,7 +10,9 @@ type ImageUploadProps = {
   hasImage: boolean;
   previewUrl?: string | null;
   previewName?: string;
+  previewDetails?: string;
   statusMessage?: string;
+  accept?: string;
   onFilesSelected?: (files: File[]) => void;
   onRemove?: () => void;
 };
@@ -18,10 +20,12 @@ type ImageUploadProps = {
 function UploadDropzone({
   label,
   multiple,
+  accept = "image/*",
   onFilesSelected,
 }: {
   label: string;
   multiple?: boolean;
+  accept?: string;
   onFilesSelected?: (files: File[]) => void;
 }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -55,7 +59,7 @@ function UploadDropzone({
     >
       <input
         type="file"
-        accept="image/*"
+        accept={accept}
         multiple={multiple}
         className="hidden"
         onChange={(event) => handleFiles(event.target.files)}
@@ -71,7 +75,9 @@ export function ImageUpload({
   hasImage,
   previewUrl,
   previewName = "Current image",
+  previewDetails,
   statusMessage,
+  accept = "image/*",
   onFilesSelected,
   onRemove,
 }: ImageUploadProps) {
@@ -104,9 +110,12 @@ export function ImageUpload({
                 </div>
               )}
             </div>
-            <p className="border-t border-border px-4 py-3 text-sm text-muted">
-              {previewName}
-            </p>
+            <div className="border-t border-border px-4 py-3">
+              <p className="text-sm text-muted">{previewName}</p>
+              {previewDetails ? (
+                <p className="mt-1 text-xs text-muted">{previewDetails}</p>
+              ) : null}
+            </div>
           </div>
 
           {onRemove ? (
@@ -121,12 +130,14 @@ export function ImageUpload({
 
           <UploadDropzone
             label="Drag and drop a replacement image here"
+            accept={accept}
             onFilesSelected={onFilesSelected}
           />
         </div>
       ) : (
         <UploadDropzone
           label="Drag and drop an image here"
+          accept={accept}
           onFilesSelected={onFilesSelected}
         />
       )}

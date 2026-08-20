@@ -27,6 +27,7 @@ export type HeroContentRecord = {
   secondary_button_label: string;
   secondary_button_href: string;
   featured_project_id: string | null;
+  hero_image_path: string | null;
   updated_at: string;
 };
 
@@ -99,6 +100,7 @@ export type PortfolioContent = {
     primaryButtonHref: string;
     secondaryButtonLabel: string;
     secondaryButtonHref: string;
+    imageUrl: string | null;
     featuredProject: PublicProject | null;
   };
   projectsSection: {
